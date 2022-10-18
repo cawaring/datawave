@@ -402,7 +402,6 @@
                                 </tag>
                                 <tag>
                                     <name>NonNullApi</name>
-                                    q
                                     <placement>X</placement>
                                 </tag>
                                 <tag>
@@ -422,18 +421,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--                <plugin>-->
-            <!--                    <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                    <artifactId>maven-compiler-plugin</artifactId>-->
-            <!--                    <version>3.7.0</version>-->
-            <!--                    <configuration>-->
-            <!--                        <release>11</release>-->
-            <!--                        <compilerArgs>-->
-            <!--                            <arg>&#45;&#45;add-modules</arg>-->
-            <!--                            <arg>java.xml.bind</arg>-->
-            <!--                        </compilerArgs>-->
-            <!--                    </configuration>-->
-            <!--                </plugin>-->
         </plugins>
     </build>
 </project>

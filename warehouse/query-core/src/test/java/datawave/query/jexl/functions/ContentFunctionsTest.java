@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ContentFunctionsTest {
@@ -174,6 +175,10 @@ public class ContentFunctionsTest {
         Assert.assertTrue(
                         "Expected phrase offset [" + startOffset + ", " + endOffset + "] for field " + field + " and eventId " + eventId.replace('\u0000', '/'),
                         found);
+    }
+    
+    private void assertNoPhraseOffsetsFor(String field) {
+        assertTrue(termOffSetMap.getPhraseIndexes(field).isEmpty());
     }
     
     private void assertPhraseOffsetsEmpty() {
@@ -1996,4 +2001,40 @@ public class ContentFunctionsTest {
         Assert.assertTrue(expect(o, true));
         assertPhraseOffsetsEmpty();
     }
+    
+    /**
+     * Verify that if an event occurs with the same phrase for two different fields, only the phrase for the excerpt field is retrieved.
+     */
+    @Test
+    public void testNonMatchingExcerptFieldsWithMultipleFieldsPresent() {
+        String query = buildFunction(ContentFunctions.CONTENT_WITHIN_FUNCTION_NAME, "1", Constants.TERM_OFFSET_MAP_JEXL_VARIABLE_NAME, "'dog'", "'cat'");
+        Expression expr = engine.createExpression(query);
+        
+        List<TermWeightPosition> list1, list2, list3, list4;
+        list1 = asList(1);
+        list2 = asList(2);
+        list3 = asList(3);
+        list4 = asList(4);
+        
+        TermFrequencyList dogList = new TermFrequencyList();
+        dogList.addOffsets(new Zone("CONTENT", true, eventId), list1);
+        dogList.addOffsets(new Zone("BODY", true, eventId), list4);
+        
+        TermFrequencyList catList = new TermFrequencyList();
+        catList.addOffsets(new Zone("CONTENT", true, eventId), list2);
+        catList.addOffsets(new Zone("BODY", true, eventId), list3);
+        
+        termOffSetMap.putTermFrequencyList("dog", dogList);
+        termOffSetMap.putTermFrequencyList("cat", catList);
+        termOffSetMap.setGatherPhraseOffsets(true);
+        termOffSetMap.setExcerptFields(Collections.singleton("CONTENT"));
+        
+        context.set(Constants.TERM_OFFSET_MAP_JEXL_VARIABLE_NAME, termOffSetMap);
+        Object o = expr.evaluate(context);
+        
+        Assert.assertTrue(expect(o, true));
+        assertPhraseOffset("CONTENT", 1, 2);
+        assertNoPhraseOffsetsFor("BODY");
+    }
+    
 }

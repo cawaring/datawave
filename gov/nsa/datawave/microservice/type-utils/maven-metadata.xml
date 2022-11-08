@@ -3,10 +3,10 @@
   <groupId>gov.nsa.datawave.microservice</groupId>
   <artifactId>type-utils</artifactId>
   <versioning>
-    <release>1.10</release>
+    <release>1.11</release>
     <versions>
-      <version>1.10</version>
+      <version>1.11</version>
     </versions>
-    <lastUpdated>20221013162036</lastUpdated>
+    <lastUpdated>20221108151936</lastUpdated>
   </versioning>
 </metadata>

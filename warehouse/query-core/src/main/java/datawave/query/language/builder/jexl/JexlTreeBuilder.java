@@ -23,6 +23,7 @@ import datawave.query.language.functions.jexl.IsNotNull;
 import datawave.query.language.functions.jexl.IsNull;
 import datawave.query.language.functions.jexl.Jexl;
 import datawave.query.language.functions.jexl.JexlQueryFunction;
+import datawave.query.language.functions.jexl.Lenient;
 import datawave.query.language.functions.jexl.Loaded;
 import datawave.query.language.functions.jexl.MatchesAtLeastCountOf;
 import datawave.query.language.functions.jexl.MatchesInGroupFunction;
@@ -30,6 +31,7 @@ import datawave.query.language.functions.jexl.MatchesInGroupLeft;
 import datawave.query.language.functions.jexl.NoExpansion;
 import datawave.query.language.functions.jexl.OccurrenceFunction;
 import datawave.query.language.functions.jexl.Options;
+import datawave.query.language.functions.jexl.Strict;
 import datawave.query.language.functions.jexl.Text;
 import datawave.query.language.functions.jexl.TimeFunction;
 import datawave.query.language.functions.jexl.Unique;
@@ -63,7 +65,7 @@ public class JexlTreeBuilder extends QueryTreeBuilder {
             new DateFunction(), new OccurrenceFunction(), new MatchesInGroupFunction(), new MatchesInGroupLeft(), new GetAllMatches(),
             new MatchesAtLeastCountOf(), new Jexl(), new TimeFunction(), new AtomValuesMatchFunction(), new Options(), new Unique(), new GroupBy(),
             new EvaluationOnly(), new UniqueByDay(), new UniqueByHour(), new UniqueByTenthOfHour(), new UniqueByMonth(), new UniqueByYear(),
-            new UniqueByMinute(), new NoExpansion(), new Compare(), new ExcerptFields()};
+            new UniqueByMinute(), new NoExpansion(), new Compare(), new ExcerptFields(), new Lenient(), new Strict()};
     
     public static final List<JexlQueryFunction> DEFAULT_ALLOWED_FUNCTION_LIST;
     

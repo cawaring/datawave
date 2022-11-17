@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>gov.nsa.datawave.microservice</groupId>
+        <artifactId>datawave-microservice-service-parent</artifactId>
+        <version>2.1</version>
+        <relativePath />
+    </parent>
+    <artifactId>spring-boot-starter-datawave-cache</artifactId>
+    <version>2.1.0</version>
+    <url>https://code.nsa.gov/datawave-spring-boot-starter-cache</url>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/NationalSecurityAgency/datawave-spring-boot-starter-cache.git</connection>
+        <developerConnection>scm:git:git@github.com:NationalSecurityAgency/datawave-spring-boot-starter-cache.git</developerConnection>
+        <tag>2.1.0</tag>
+        <url>https://github.com/NationalSecurityAgency/datawave-spring-boot-starter-cache</url>
+    </scm>
+    <dependencies>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast-spring</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <repository>
+            <!--
+                This repository is a temporary work-around until we can public artifacts to maven central.
+                This allows us to retrieve released microservice artifacts from our github repository.
+            -->
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>datawave-github-mvn-repo</id>
+            <url>https://raw.githubusercontent.com/NationalSecurityAgency/datawave/mvn-repo</url>
+        </repository>
+    </repositories>
+</project>

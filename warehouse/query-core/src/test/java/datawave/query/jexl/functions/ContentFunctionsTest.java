@@ -1953,7 +1953,7 @@ public class ContentFunctionsTest {
         // Ensure that we get the hit if we evaluate null zone
         Assert.assertEquals(Collections.singleton(zone2.getZone()), ContentFunctions.phrase((Object) null, termOffsetMap, terms));
     }
-
+    
     /**
      * Verify that if gatherPhraseOffsets is false, that even when there is a phrase index for matching excerpt field, it is not recorded.
      */
@@ -2036,7 +2036,7 @@ public class ContentFunctionsTest {
         assertPhraseOffset("CONTENT", 1, 2);
         assertNoPhraseOffsetsFor("BODY");
     }
-
+    
     // Validate intersection of event ids is working properly
     @Test
     public void testAdjacentHitsAcrossChildDocuments() {

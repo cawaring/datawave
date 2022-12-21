@@ -164,6 +164,10 @@ public abstract class Loader<K,V> extends CacheLoader<K,V> implements Runnable {
         
     }
     
+    public boolean equals(Loader loader) {
+        return (this.hashCode() == loader.hashCode());
+    }
+    
     @Override
     public int hashCode() {
         return System.identityHashCode(this) + childHash;

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 
@@ -655,7 +656,7 @@ public abstract class ExtendedContentIndexingColumnBasedHandler<KEYIN,KEYOUT,VAL
      */
     protected static class HeartBeatThread extends Thread {
         public static final long INTERVAL = 500; // half second resolution
-        public static volatile int counter = 0;
+        public AtomicInteger counter = new AtomicInteger(0);
         public static long lastRun;
         
         static {
@@ -683,7 +684,7 @@ public abstract class ExtendedContentIndexingColumnBasedHandler<KEYIN,KEYOUT,VAL
                     log.warn("HeartBeatThread starved for cpu, " + "should execute every " + INTERVAL + " ms, " + "latest: " + delta + " ms.");
                 }
                 lastRun = currentRun;
-                counter++;
+                counter.incrementAndGet();
             }
         }
     }

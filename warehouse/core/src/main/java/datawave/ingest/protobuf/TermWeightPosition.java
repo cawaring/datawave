@@ -1,8 +1,10 @@
 package datawave.ingest.protobuf;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.log4j.Logger;
 
 import java.util.Comparator;
+import java.util.Objects;
 
 /**
  * This is a utility class for processing a single term weight position. These get aggregated into a TermWeight,
@@ -96,6 +98,11 @@ public class TermWeightPosition implements Comparable<TermWeightPosition> {
     public boolean equals(TermWeightPosition o) {
         
         return (compareTo(o) == 0);
+    }
+    
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
     }
     
     /**

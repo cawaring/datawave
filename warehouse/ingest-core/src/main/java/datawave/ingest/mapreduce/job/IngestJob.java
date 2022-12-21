@@ -464,9 +464,14 @@ public class IngestJob implements Tool {
                     numRecords += recordC.getValue();
                 }
                 // records that throw runtime exceptions are still counted as processed
-                float percentError = 100 * ((float) numExceptions / numRecords);
-                log.info(String.format("Percent Error: %.2f", percentError));
-                if (conf.getInt("job.percent.error.threshold", 101) <= percentError) {
+                if (numRecords > 0) {
+                    float percentError = 100 * ((float) numExceptions / numRecords);
+                    log.info(String.format("Percent Error: %.2f", percentError));
+                    if (conf.getInt("job.percent.error.threshold", 101) <= percentError) {
+                        return jobFailed(job, runningJob, outputFs, workDirPath);
+                    }
+                } else {
+                    log.info("Job ran with no records");
                     return jobFailed(job, runningJob, outputFs, workDirPath);
                 }
             }

@@ -699,7 +699,7 @@ public class EventMapper<K1,V1 extends RawRecordContainer,K2,V2> extends StatsDE
             // Try to only parse the event once. Parse the event on the first pass and only if
             // the BaseIngestHelper class differs. The same class used by different handlers
             // *should* produce the same result.
-            if (null == previousHelper || !previousHelper.getClass().getName().equals(thisHelper.getClass().getName())) {
+            if (null == previousHelper || !thisHelper.getClass().isAssignableFrom(previousHelper.getClass())) {
                 fields.clear();
                 Throwable e = null;
                 for (Map.Entry<String,NormalizedContentInterface> entry : getFields(value, handler).entries()) {

@@ -955,15 +955,15 @@ public class BulkInputFormat extends InputFormat<Key,Value> {
         
         try (AccumuloClient client = getClient(job.getConfiguration())) {
             String tableId = client.tableOperations().tableIdMap().get(tableName);
-            
+
             for (Range range : ranges) {
                 Text startRow;
-                
+
                 if (range.getStartKey() != null)
                     startRow = range.getStartKey().getRow();
                 else
                     startRow = new Text();
-                
+
                 Range metadataRange = new Range(new KeyExtent(TableId.of(tableId), startRow, null).toMetaRow(), true, null, false);
                 Scanner scanner = client.createScanner(MetadataTable.NAME, Authorizations.EMPTY);
                 MetadataSchema.TabletsSection.TabletColumnFamily.PREV_ROW_COLUMN.fetch(scanner);
@@ -971,69 +971,69 @@ public class BulkInputFormat extends InputFormat<Key,Value> {
                 scanner.fetchColumnFamily(MetadataSchema.TabletsSection.CurrentLocationColumnFamily.NAME);
                 scanner.fetchColumnFamily(MetadataSchema.TabletsSection.FutureLocationColumnFamily.NAME);
                 scanner.setRange(metadataRange);
-                
+
                 RowIterator rowIter = new RowIterator(scanner);
-                
+
                 KeyExtent lastExtent = null;
-                
+
                 while (rowIter.hasNext()) {
                     Iterator<Entry<Key,Value>> row = rowIter.next();
                     String last = "";
                     KeyExtent extent = null;
                     String location = null;
-                    
+
                     while (row.hasNext()) {
                         Entry<Key,Value> entry = row.next();
                         Key key = entry.getKey();
-                        
+
                         if (key.getColumnFamily().equals(MetadataSchema.TabletsSection.LastLocationColumnFamily.NAME)) {
                             last = entry.getValue().toString();
                         }
-                        
+
                         if (key.getColumnFamily().equals(MetadataSchema.TabletsSection.CurrentLocationColumnFamily.NAME)
                                         || key.getColumnFamily().equals(MetadataSchema.TabletsSection.FutureLocationColumnFamily.NAME)) {
                             location = entry.getValue().toString();
                         }
-                        
+
                         if (MetadataSchema.TabletsSection.TabletColumnFamily.PREV_ROW_COLUMN.hasColumns(key)) {
                             extent = KeyExtent.fromMetaPrevRow(entry);
                         }
                     }
-                    
+
                     if (location != null)
                         return null;
-                    
+
                     if (!extent.tableId().canonical().equals(tableId)) {
                         throw new AccumuloException("Saw unexpected table Id " + tableId + " " + extent);
                     }
-                    
+
                     if (lastExtent != null && !extent.isPreviousExtent(lastExtent)) {
                         throw new AccumuloException(" " + lastExtent + " is not previous extent " + extent);
                     }
-                    
+
                     Map<KeyExtent,List<Range>> tabletRanges = binnedRanges.get(last);
                     if (tabletRanges == null) {
                         tabletRanges = new HashMap<>();
                         binnedRanges.put(last, tabletRanges);
                     }
-                    
+
                     List<Range> rangeList = tabletRanges.get(extent);
                     if (rangeList == null) {
                         rangeList = new ArrayList<>();
                         tabletRanges.put(extent, rangeList);
                     }
-                    
+
                     rangeList.add(range);
-                    
+
                     if (extent.endRow() == null || range.afterEndKey(new Key(extent.endRow()).followingKey(PartialKey.ROW))) {
                         break;
                     }
-                    
+
                     lastExtent = extent;
                 }
-                
+
             }
-            
+
             return binnedRanges;
         }
     }
@@ -1110,11 +1110,10 @@ public class BulkInputFormat extends InputFormat<Key,Value> {
                 binnedRanges = binOfflineTable(job, tableName, ranges);
                 while (binnedRanges == null) {
                     // Some tablets were still online, try again
-                    UtilWaitThread.sleep(100 + (int) (Math.random() * 100)); // sleep randomly between 100 and 200 ms
+                    UtilWaitThread.sleep(100L + (int) (Math.random() * 100)); // sleep randomly between 100 and 200 ms
                     binnedRanges = binOfflineTable(job, tableName, ranges);
                 }
             } else {
-                
                 try (AccumuloClient client = getClient(job.getConfiguration())) {
                     TableId tableId = null;
                     tl = getTabletLocator(job.getConfiguration());
@@ -1136,7 +1135,7 @@ public class BulkInputFormat extends InputFormat<Key,Value> {
                         UtilWaitThread.sleep(100 + (int) (Math.random() * 100)); // sleep randomly between 100 and 200 ms
                         tl.invalidateCache();
                     }
-                    
+
                     clipRanges(binnedRanges);
                 }
             }

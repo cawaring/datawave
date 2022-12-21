@@ -221,6 +221,11 @@ public class TokenSearchSynonymFilter extends TokenFilter {
         }
         
         @Override
+        public int hashCode() {
+            return System.identityHashCode(this);
+        }
+        
+        @Override
         public String toString() {
             return "OutputTuple [term=" + term + ", position=" + position + ", offset=" + offset + ", length=" + length + "]";
         }

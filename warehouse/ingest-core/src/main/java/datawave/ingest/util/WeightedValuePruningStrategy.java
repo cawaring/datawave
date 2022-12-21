@@ -134,7 +134,7 @@ public class WeightedValuePruningStrategy extends NGramTokenizationStrategy {
                 int reducedScaleNgramCount = BloomFilterUtil.predictNGramCount((float) scalableOriginalStringLengths[i], this.maxNGramLength);
                 if (ratioOfTotalNgramCountsToMaxAllowed > 1.0f) {
                     reducedScaleNgramCount = Math.round(((float) reducedScaleNgramCount) * ratioOfTotalNgramCountsToMaxAllowed);
-                } else {
+                } else if (ratioOfTotalNgramCountsToMaxAllowed > 0.0f) {
                     reducedScaleNgramCount = Math.round(((float) reducedScaleNgramCount) / ratioOfTotalNgramCountsToMaxAllowed);
                 }
                 

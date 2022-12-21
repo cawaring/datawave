@@ -1,6 +1,7 @@
 package datawave.ingest.data.tokenize;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import datawave.util.ObjectFactory;
 import datawave.ingest.data.config.DataTypeHelper;
@@ -24,7 +25,7 @@ public class TokenizationHelper {
         private static final Logger log = Logger.getLogger(HeartBeatThread.class);
         
         public static final long INTERVAL = 500; // half second resolution
-        public static volatile int counter = 0;
+        private static AtomicInteger counter = new AtomicInteger(0);
         public static long lastRun;
         
         static {
@@ -41,7 +42,7 @@ public class TokenizationHelper {
                 try {
                     Thread.sleep(INTERVAL);
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    Thread.currentThread().interrupt();
                 }
                 
                 // verify that we're exeuting in a timely fashion
@@ -52,8 +53,12 @@ public class TokenizationHelper {
                     log.warn("HeartBeatThread starved for cpu, " + "should execute every " + INTERVAL + " ms, " + "latest: " + delta + " ms.");
                 }
                 lastRun = currentRun;
-                counter++;
+                counter.incrementAndGet();
             }
+        }
+        
+        public static int getCounter() {
+            return counter.get();
         }
     }
     

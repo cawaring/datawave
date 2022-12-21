@@ -369,16 +369,16 @@ public abstract class ContentIndexingColumnBasedHandler<KEYIN> extends AbstractC
             // Track amount of time we've spent tokenizing this document,
             // at the least we will use this for metrics, we could also use
             // this to halt indexing if we exceed a certain threshold
-            int heartBeatCount = HeartBeatThread.counter;
+            int heartBeatCount = HeartBeatThread.getCounter();
             int tokenizerBeats = 0;
             long start = System.currentTimeMillis();
             
             tokenizerTimeWarned = false;
             
             while (true) {
-                if (heartBeatCount != HeartBeatThread.counter) {
-                    tokenizerBeats += HeartBeatThread.counter - heartBeatCount;
-                    heartBeatCount = HeartBeatThread.counter;
+                if (heartBeatCount != HeartBeatThread.getCounter()) {
+                    tokenizerBeats += HeartBeatThread.getCounter() - heartBeatCount;
+                    heartBeatCount = HeartBeatThread.getCounter();
                     
                     // warn once on exceeding the warn threshold
                     long elapsedEstimateMsec = tokenizerBeats * HeartBeatThread.INTERVAL;

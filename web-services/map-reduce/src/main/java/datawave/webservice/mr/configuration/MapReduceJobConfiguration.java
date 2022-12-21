@@ -437,7 +437,7 @@ public class MapReduceJobConfiguration {
         }
         
         int fileCount = 0;
-        String outputName = source.replaceAll("/", "_").replaceFirst("$_", "") + ".jar";
+        String outputName = source.replaceAll("/", "_") + ".jar";
         Path destination = new Path(classpath, outputName);
         try (FSDataOutputStream hadoopOutputStream = fs.create(destination, false); JarOutputStream jarOutputStream = new JarOutputStream(hadoopOutputStream)) {
             boolean first = true;

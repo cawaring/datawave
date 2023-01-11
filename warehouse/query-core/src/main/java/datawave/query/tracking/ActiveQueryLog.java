@@ -2,11 +2,6 @@ package datawave.query.tracking;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.apache.accumulo.core.conf.AccumuloConfiguration;
-import org.apache.accumulo.core.data.Range;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -16,6 +11,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.accumulo.core.conf.AccumuloConfiguration;
+import org.apache.accumulo.core.data.Range;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 public class ActiveQueryLog {
     
@@ -67,7 +66,7 @@ public class ActiveQueryLog {
     /**
      * Return the default {@link ActiveQueryLog} instance. The time the instance was last accessed will be updated to the current time in milliseconds, and if
      * the instance's timer was cancelled, it will be restarted.
-     * 
+     *
      * @return the default {@link ActiveQueryLog} instance
      */
     public static ActiveQueryLog getInstance() {
@@ -76,10 +75,10 @@ public class ActiveQueryLog {
     
     /**
      * Return the {@link ActiveQueryLog} instance associated with the specified name. If one does not exist, it will be created.
-     *
+     * <p>
      * If the specified name is null or blank, the default instance with the name '{@value #DEFAULT_NAME}' will be returned. Additionally, the time the log was
      * last accessed will be updated to the current time in milliseconds, and if the log's timer was cancelled, it will be restarted.
-     * 
+     *
      * @param name
      *            the associated name by which to look up the desired {@link ActiveQueryLog}. This will typically be the name of a table or query logic.
      * @return the existing or new {@link ActiveQueryLog} for the name

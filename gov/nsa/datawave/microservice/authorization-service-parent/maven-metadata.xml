@@ -3,10 +3,10 @@
   <groupId>gov.nsa.datawave.microservice</groupId>
   <artifactId>authorization-service-parent</artifactId>
   <versioning>
-    <release>2.1.0</release>
+    <release>1.14</release>
     <versions>
-      <version>2.1.0</version>
+      <version>1.14</version>
     </versions>
-    <lastUpdated>20221117024751</lastUpdated>
+    <lastUpdated>20230203190956</lastUpdated>
   </versioning>
 </metadata>

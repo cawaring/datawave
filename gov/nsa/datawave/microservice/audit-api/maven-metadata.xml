@@ -3,10 +3,10 @@
   <groupId>gov.nsa.datawave.microservice</groupId>
   <artifactId>audit-api</artifactId>
   <versioning>
-    <release>2.1.0</release>
+    <release>1.11</release>
     <versions>
-      <version>2.1.0</version>
+      <version>1.11</version>
     </versions>
-    <lastUpdated>20221117031323</lastUpdated>
+    <lastUpdated>20230203192504</lastUpdated>
   </versioning>
 </metadata>

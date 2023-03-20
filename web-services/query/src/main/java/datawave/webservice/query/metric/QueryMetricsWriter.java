@@ -162,7 +162,7 @@ public class QueryMetricsWriter {
         return metricHolderList;
     }
     
-    private class FailureRecord {
+    private static class FailureRecord {
         private QueryMetricHolder queryMetricHolder;
         private long created = System.currentTimeMillis();
         private long totalFailures;

@@ -3,10 +3,10 @@
   <groupId>gov.nsa.datawave.webservices</groupId>
   <artifactId>datawave-ws-client</artifactId>
   <versioning>
-    <release>5.1.0</release>
+    <release>3.40.4</release>
     <versions>
-      <version>5.1.0</version>
+      <version>3.40.4</version>
     </versions>
-    <lastUpdated>20230313211104</lastUpdated>
+    <lastUpdated>20230323104245</lastUpdated>
   </versioning>
 </metadata>

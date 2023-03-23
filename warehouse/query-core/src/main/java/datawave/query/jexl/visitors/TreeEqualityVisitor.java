@@ -128,11 +128,11 @@ public class TreeEqualityVisitor implements ParserVisitor {
      * Compare the given node and evaluate their equivalence. This visitor will be applied to each of the first node's children. The visitor will be accepted on
      * all the first node's children.
      *
-     * @param first
-     *            the first node
-     * @param second
-     *            the second node
-     * @return the comparison result
+     * @param node1
+     *            first node
+     * @param node2
+     *            second node
+     * @return result of visit
      **/
     private Comparison checkEquality(SimpleNode first, SimpleNode second) {
         // Compare the classes.

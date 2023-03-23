@@ -134,27 +134,27 @@ public class TreeEqualityVisitor implements ParserVisitor {
      *            second node
      * @return result of visit
      **/
-    private Comparison checkEquality(SimpleNode first, SimpleNode second) {
+    private Comparison checkEquality(SimpleNode node1, SimpleNode node2) {
         // Compare the classes.
-        Comparison comparison = compareClasses(first, second);
+        Comparison comparison = compareClasses(node1, node2);
         if (!comparison.isEqual()) {
             return comparison;
         }
         
         // Compare the values.
-        comparison = compareValues(first, second);
+        comparison = compareValues(node1, node2);
         if (!comparison.isEqual()) {
             return comparison;
         }
         
         // Compare the images.
-        comparison = compareImages(first, second);
+        comparison = compareImages(node1, node2);
         if (!comparison.isEqual()) {
             return comparison;
         }
         
         // Compare the children.
-        return compareChildren(first, second);
+        return compareChildren(node1, node2);
     }
     
     /**

@@ -30,27 +30,19 @@ public class DocumentProjectionTest {
         d.put("FOO", new Content("foofighter", new Key("row", "dt\0uid", "", cv, -1), true));
         d.put("ID", new Numeric(123, new Key("row", "dt\0uid", "", cv, -1), true));
         
-        Document primes = new Document();
-        primes.put("PRIME", new Numeric(2, new Key("row", "dt\0uid", "", cv, -1), true));
-        primes.put("PRIME", new Numeric(3, new Key("row", "dt\0uid", "", cv, -1), true));
-        primes.put("PRIME", new Numeric(5, new Key("row", "dt\0uid", "", cv, -1), true));
-        primes.put("PRIME", new Numeric(7, new Key("row", "dt\0uid", "", cv, -1), true));
-        primes.put("PRIME", new Numeric(11, new Key("row", "dt\0uid", "", cv, -1), true));
+        Attributes primes = new Attributes(true);
+        primes.add(new Numeric(2, new Key("row", "dt\0uid", "", cv, -1), true));
+        primes.add(new Numeric(3, new Key("row", "dt\0uid", "", cv, -1), true));
+        primes.add(new Numeric(5, new Key("row", "dt\0uid", "", cv, -1), true));
+        primes.add(new Numeric(7, new Key("row", "dt\0uid", "", cv, -1), true));
+        primes.add(new Numeric(11, new Key("row", "dt\0uid", "", cv, -1), true));
         d.put("PRIMES", primes);
         
-        Attributes others = new Attributes(true);
+        d.put("FOO.1", new Content("bar", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        d.put("ID.1", new Numeric(456, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
         
-        Document sub1 = new Document();
-        sub1.put("FOO.1", new Content("bar", new Key("row", "dt\0uid", "", cv, -1), true));
-        sub1.put("ID.1", new Numeric(456, new Key("row", "dt\0uid", "", cv, -1), true));
-        others.add(sub1);
-        
-        Document sub2 = new Document();
-        sub2.put("FOO.2", new Content("baz", new Key("row", "dt\0uid", "", cv, -1), true));
-        sub2.put("ID.2", new Numeric(789, new Key("row", "dt\0uid", "", cv, -1), true));
-        others.add(sub2);
-        
-        d.put("OTHERS", others); // others' attributes have grouping context
+        d.put("FOO.2", new Content("baz", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        d.put("ID.2", new Numeric(789, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
     }
     
     @Test
@@ -61,7 +53,7 @@ public class DocumentProjectionTest {
         
         assertEquals(11, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(4, result.getValue().size());
+        assertEquals(0, result.getValue().size());
     }
     
     @Test
@@ -88,19 +80,6 @@ public class DocumentProjectionTest {
     @Test
     public void testIncludesAllFields() {
         Set<String> includes = Sets.newHashSet("FOO", "ID", "PRIMES", "PRIME", "CHILDREN");
-        DocumentProjection projection = new DocumentProjection();
-        projection.setIncludes(includes);
-        
-        assertEquals(11, d.size());
-        Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(11, result.getValue().size());
-    }
-    
-    // even though the sub-document field is not on the includes list, all the fields in the
-    // sub-document are. Therefore, we keep the child document.
-    @Test
-    public void testIncludesAllFieldsExceptNestedDocumentFields() {
-        Set<String> includes = Sets.newHashSet("FOO", "ID", "PRIME");
         DocumentProjection projection = new DocumentProjection();
         projection.setIncludes(includes);
         
@@ -144,7 +123,7 @@ public class DocumentProjectionTest {
     
     @Test
     public void testExcludeNestedField() {
-        Set<String> excludes = Sets.newHashSet("PRIME");
+        Set<String> excludes = Sets.newHashSet("PRIMES");
         DocumentProjection projection = new DocumentProjection();
         projection.setExcludes(excludes);
         
@@ -208,19 +187,12 @@ public class DocumentProjectionTest {
         d.put("NAME", new Content("bob", new Key("row", "dt\0uid", "", cv, -1), true));
         d.put("AGE", new Numeric(40, new Key("row", "dt\0uid", "", cv, -1), true));
         
-        Attributes children = new Attributes(true);
+        d.put("NAME.1", new Content("frank", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        d.put("AGE.1", new Numeric(12, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
         
-        Document frank = new Document();
-        frank.put("NAME", new Content("frank", new Key("row", "dt\0uid", "", cv, -1), true));
-        frank.put("AGE", new Numeric(12, new Key("row", "dt\0uid", "", cv, -1), true));
-        children.add(frank);
+        d.put("NAME.2", new Content("sally", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        d.put("AGE.2", new Numeric(10, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
         
-        Document sally = new Document();
-        sally.put("NAME", new Content("sally", new Key("row", "dt\0uid", "", cv, -1), true));
-        sally.put("AGE", new Numeric(10, new Key("row", "dt\0uid", "", cv, -1), true));
-        children.add(sally);
-        
-        d.put("CHILDREN", children); // others' attributes have grouping context
         return d;
     }
     

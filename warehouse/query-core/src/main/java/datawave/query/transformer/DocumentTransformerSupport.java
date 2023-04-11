@@ -3,6 +3,7 @@ package datawave.query.transformer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import datawave.marking.MarkingFunctions;
+import datawave.microservice.querymetric.BaseQueryMetric;
 import datawave.query.DocumentSerialization;
 import datawave.query.attributes.Attribute;
 import datawave.query.attributes.Attributes;
@@ -12,7 +13,6 @@ import datawave.query.attributes.TimingMetadata;
 import datawave.query.cardinality.CardinalityConfiguration;
 import datawave.query.cardinality.CardinalityRecord;
 import datawave.query.function.JexlEvaluation;
-import datawave.query.function.LogTiming;
 import datawave.query.function.deserializer.DocumentDeserializer;
 import datawave.query.iterator.QueryOptions;
 import datawave.query.iterator.profile.QuerySpan;
@@ -25,7 +25,6 @@ import datawave.webservice.query.exception.EmptyObjectException;
 import datawave.webservice.query.logic.BaseQueryLogic;
 import datawave.webservice.query.logic.WritesQueryMetrics;
 import datawave.webservice.query.logic.WritesResultCardinalities;
-import datawave.microservice.querymetric.BaseQueryMetric;
 import datawave.webservice.query.result.event.EventBase;
 import datawave.webservice.query.result.event.FieldBase;
 import datawave.webservice.query.result.event.ResponseObjectFactory;
@@ -202,10 +201,6 @@ public abstract class DocumentTransformerSupport<I,O> extends EventQueryTransfor
         Attribute<?> attribute = null;
         for (Entry<String,Attribute<? extends Comparable<?>>> data : documentData.entrySet()) {
             
-            // skip metadata fields
-            if (data.getValue() instanceof datawave.query.attributes.Metadata) {
-                continue;
-            }
             fn = (documentName == null) ? data.getKey() : documentName;
             
             // Some fields were added by the queryPlanner. This will ensure that the original projectFields and blacklistFields are honored
@@ -224,10 +219,8 @@ public abstract class DocumentTransformerSupport<I,O> extends EventQueryTransfor
     
     protected void extractMetrics(Document document, Key documentKey) {
         
-        Map<String,Attribute<? extends Comparable<?>>> dictionary = document.getDictionary();
-        Attribute<? extends Comparable<?>> timingMetadataAttribute = dictionary.get(LogTiming.TIMING_METADATA);
-        if (timingMetadataAttribute != null && timingMetadataAttribute instanceof TimingMetadata) {
-            TimingMetadata timingMetadata = (TimingMetadata) timingMetadataAttribute;
+        if (document.hasTimingMetadata()) {
+            TimingMetadata timingMetadata = document.getTimingMetadata();
             long currentSourceCount = timingMetadata.getSourceCount();
             long currentNextCount = timingMetadata.getNextCount();
             long currentSeekCount = timingMetadata.getSeekCount();
@@ -256,7 +249,8 @@ public abstract class DocumentTransformerSupport<I,O> extends EventQueryTransfor
                     log.info(sb.toString());
                 }
             }
-            if (dictionary.size() == 1) {
+            
+            if (document.isEmpty()) {
                 // this document contained only timing metadata
                 throw new EmptyObjectException();
             }

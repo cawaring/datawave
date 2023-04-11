@@ -17,25 +17,26 @@ import com.google.common.collect.Sets;
 import datawave.core.iterators.ColumnRangeIterator;
 import datawave.core.iterators.DatawaveFieldIndexCachingIteratorJexl.HdfsBackedControl;
 import datawave.core.iterators.filesystem.FileSystemCache;
-import datawave.query.attributes.ExcerptFields;
-import datawave.query.function.JexlEvaluation;
-import datawave.query.iterator.ivarator.IvaratorCacheDirConfig;
 import datawave.core.iterators.querylock.QueryLock;
 import datawave.data.type.Type;
 import datawave.ingest.data.config.ingest.CompositeIngest;
 import datawave.query.Constants;
 import datawave.query.DocumentSerialization;
 import datawave.query.attributes.Document;
+import datawave.query.attributes.ExcerptFields;
+import datawave.query.attributes.UniqueFields;
 import datawave.query.composite.CompositeMetadata;
 import datawave.query.function.ConfiguredFunction;
 import datawave.query.function.DocumentPermutation;
 import datawave.query.function.Equality;
 import datawave.query.function.GetStartKey;
+import datawave.query.function.JexlEvaluation;
 import datawave.query.function.PrefixEquality;
 import datawave.query.iterator.filter.EventKeyDataTypeFilter;
 import datawave.query.iterator.filter.FieldIndexKeyDataTypeFilter;
 import datawave.query.iterator.filter.KeyIdentity;
 import datawave.query.iterator.filter.StringToText;
+import datawave.query.iterator.ivarator.IvaratorCacheDirConfig;
 import datawave.query.iterator.logic.IndexIterator;
 import datawave.query.iterator.logic.TermFrequencyExcerptIterator;
 import datawave.query.jexl.DefaultArithmetic;
@@ -48,11 +49,9 @@ import datawave.query.predicate.TimeFilter;
 import datawave.query.statsd.QueryStatsDClient;
 import datawave.query.tables.async.Scan;
 import datawave.query.tracking.ActiveQueryLog;
-import datawave.query.attributes.UniqueFields;
 import datawave.query.util.TypeMetadata;
 import datawave.query.util.sortedset.FileSortedSet;
 import datawave.util.StringUtils;
-import datawave.util.UniversalSet;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.PartialKey;
 import org.apache.accumulo.core.data.Range;
@@ -1270,17 +1269,18 @@ public class QueryOptions implements OptionDescriber {
         
         if (options.containsKey(PROJECTION_FIELDS)) {
             this.projectResults = true;
-            this.useWhiteListedFields = true;
             
             String fieldList = options.get(PROJECTION_FIELDS);
-            if (fieldList != null && EVERYTHING.equals(fieldList)) {
-                this.whiteListedFields = UniversalSet.instance();
-            } else if (fieldList != null && !fieldList.trim().equals("")) {
+            if (fieldList != null && !EVERYTHING.equals(fieldList) && !fieldList.trim().equals("")) {
+                this.useWhiteListedFields = true;
                 this.whiteListedFields = new HashSet<>();
                 Collections.addAll(this.whiteListedFields, StringUtils.split(fieldList, Constants.PARAM_VALUE_SEP));
-            }
-            if (options.containsKey(HIT_LIST) && Boolean.parseBoolean(options.get(HIT_LIST))) {
-                this.whiteListedFields.add(JexlEvaluation.HIT_TERM_FIELD);
+                if (options.containsKey(HIT_LIST) && Boolean.parseBoolean(options.get(HIT_LIST))) {
+                    this.whiteListedFields.add(JexlEvaluation.HIT_TERM_FIELD);
+                }
+            } else {
+                this.useBlackListedFields = true;
+                this.blackListedFields = new HashSet<>();
             }
         }
         

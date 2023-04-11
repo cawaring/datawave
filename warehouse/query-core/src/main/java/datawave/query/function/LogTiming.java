@@ -1,25 +1,21 @@
 package datawave.query.function;
 
+import com.google.common.base.Function;
+import datawave.query.attributes.Document;
+import datawave.query.attributes.TimingMetadata;
+import datawave.query.iterator.profile.QuerySpan;
+import org.apache.accumulo.core.data.Key;
+import org.apache.log4j.Logger;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map.Entry;
-
-import datawave.query.attributes.Numeric;
-import datawave.query.iterator.profile.QuerySpan;
-import datawave.query.attributes.Document;
-import datawave.query.attributes.TimingMetadata;
-
-import org.apache.accumulo.core.data.Key;
-
-import com.google.common.base.Function;
-import org.apache.log4j.Logger;
 
 /**
  * Updates the timing information per document
  */
 public class LogTiming implements Function<Entry<Key,Document>,Entry<Key,Document>> {
     
-    public static final String TIMING_METADATA = "TIMING_METADATA";
     protected QuerySpan spanRunner;
     private static String host = null;
     private static Logger log = Logger.getLogger(QuerySpan.class);
@@ -63,12 +59,12 @@ public class LogTiming implements Function<Entry<Key,Document>,Entry<Key,Documen
                 double threshold = totalStageTimers * 0.05;
                 for (Entry<String,Long> e : querySpan.getStageTimers().entrySet()) {
                     if (e.getValue().longValue() >= threshold) {
-                        timingMetadata.addStageTimer(e.getKey(), new Numeric(e.getValue(), document.getMetadata(), document.isToKeep()));
+                        timingMetadata.addStageTimer(e.getKey(), e.getValue());
                     }
                 }
                 querySpan.reset();
             }
-            document.put(TIMING_METADATA, timingMetadata);
+            document.setTimingMetadata(timingMetadata);
         }
     }
 }

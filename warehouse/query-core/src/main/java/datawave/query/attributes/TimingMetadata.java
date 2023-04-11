@@ -11,6 +11,7 @@ import org.apache.hadoop.io.WritableUtils;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,8 +19,8 @@ import java.util.TreeMap;
 /**
  * Holds timing information for query iterator next, source, seek, and yield counts.
  */
-public class TimingMetadata implements WritableComparable<TimingMetadata>, KryoSerializable, Comparable<TimingMetadata> {
-    
+public class TimingMetadata implements WritableComparable<TimingMetadata>, KryoSerializable, Comparable<TimingMetadata>, Serializable {
+    private static final long serialVersionUID = -1;
     private static final String NEXT_COUNT = "NEXT_COUNT";
     private static final String SOURCE_COUNT = "SOURCE_COUNT";
     private static final String SEEK_COUNT = "SEEK_COUNT";

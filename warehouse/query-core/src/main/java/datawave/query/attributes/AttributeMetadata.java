@@ -5,13 +5,20 @@ import org.apache.accumulo.core.data.ArrayByteSequence;
 import org.apache.accumulo.core.data.ByteSequence;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.hadoop.io.Text;
 
-public class AttributeMetadata implements Comparable<AttributeMetadata> {
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class AttributeMetadata implements Comparable<AttributeMetadata>, Serializable {
+    private static final long serialVersionUID = -1;
     private static final Text EMPTY_TEXT = new Text();
     private static final ByteSequence EMPTY_BYTE_SEQUENCE = new ArrayByteSequence(new byte[0]);
     
-    private Key metadata;
+    private transient Key metadata;
     
     public Key getMetadata() {
         return metadata;
@@ -117,6 +124,47 @@ public class AttributeMetadata implements Comparable<AttributeMetadata> {
     
     protected boolean isTermFrequency(ByteSequence cf) {
         return (cf.length() == 2 && cf.byteAt(0) == 't' && cf.byteAt(1) == 'f');
+    }
+    
+    private void writeObject(ObjectOutputStream stream) throws IOException {
+        stream.writeBoolean(isMetadataSet());
+        if (isMetadataSet()) {
+            writeText(metadata.getRow(), stream);
+            writeText(metadata.getColumnFamily(), stream);
+            writeText(metadata.getColumnQualifier(), stream);
+            writeText(metadata.getColumnVisibility(), stream);
+            stream.writeLong(metadata.getTimestamp());
+            stream.writeBoolean(metadata.isDeleted());
+        }
+    }
+    
+    private void writeText(Text text, ObjectOutputStream stream) throws IOException {
+        stream.write(text.getLength());
+        stream.write(text.getBytes(), 0, text.getLength());
+    }
+    
+    private void readObject(ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        boolean hasMetadata = stream.readBoolean();
+        if (hasMetadata) {
+            Text row = readText(stream);
+            Text cf = readText(stream);
+            Text cq = readText(stream);
+            Text cv = readText(stream);
+            long ts = stream.readLong();
+            boolean deleted = stream.readBoolean();
+            metadata = new Key(row, cf, cq, cv, ts);
+            metadata.setDeleted(deleted);
+        }
+    }
+    
+    private Text readText(ObjectInputStream stream) throws IOException {
+        int len = stream.readInt();
+        byte[] bytes = new byte[len];
+        int read = 0;
+        while (read < len) {
+            read += stream.read(bytes, read, len - read);
+        }
+        return new Text(bytes);
     }
     
     @Override

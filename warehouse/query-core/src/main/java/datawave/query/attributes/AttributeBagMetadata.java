@@ -7,9 +7,12 @@ import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.log4j.Logger;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public class AttributeBagMetadata extends AttributeMetadata {
+public class AttributeBagMetadata extends AttributeMetadata implements Serializable {
+    private static final long serialVersionUID = -1;
+    
     private static final Logger log = Logger.getLogger(AttributeBagMetadata.class);
     private static final long ONE_DAY_MS = 1000l * 60 * 60 * 24;
     

@@ -80,34 +80,24 @@ public class DocumentProjection implements DocumentPermutation {
      */
     @Override
     public Entry<Key,Document> apply(Entry<Key,Document> from) {
-        Document returnDoc = trim(from.getValue());
-        return Maps.immutableEntry(from.getKey(), returnDoc);
+        trim(from.getValue());
+        return Maps.immutableEntry(from.getKey(), from.getValue());
     }
     
-    private Document trim(Document d) {
+    private void trim(Document d) {
         if (log.isTraceEnabled()) {
             log.trace("Applying projection " + projection + " to " + d);
         }
         Map<String,Attribute<? extends Comparable<?>>> dict = d.getDictionary();
-        Document newDoc = new Document();
         
         for (Entry<String,Attribute<? extends Comparable<?>>> entry : dict.entrySet()) {
             String fieldName = entry.getKey();
             Attribute<?> attr = entry.getValue();
-            
-            if (projection.apply(fieldName)) {
-                
-                // We just want to add this subtree
-                newDoc.put(fieldName, (Attribute<?>) attr.copy(), this.includeGroupingContext, this.reducedResponse);
-                
-            }
+            attr.setToKeep(attr.isToKeep() && projection.apply(fieldName));
         }
         
-        if (log.isTraceEnabled()) {
-            log.trace("Document after projection: " + newDoc);
-        }
-        
-        return newDoc;
+        // reduce the document to those to keep
+        d.reduceToKeep();
     }
     
 }

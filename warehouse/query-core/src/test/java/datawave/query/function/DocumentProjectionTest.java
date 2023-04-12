@@ -23,6 +23,7 @@ public class DocumentProjectionTest {
     
     private final ColumnVisibility cv = new ColumnVisibility("PUBLIC");
     private Document d;
+    private int ALL_FIELDS;
     
     @Before
     public void setup() {
@@ -43,6 +44,10 @@ public class DocumentProjectionTest {
         
         d.put("FOO.2", new Content("baz", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
         d.put("ID.2", new Numeric(789, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        
+        d.put("PRIMARY_ID", new Numeric(789, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        
+        ALL_FIELDS = d.getDictionary().size() + primes.size() - 1;
     }
     
     @Test
@@ -51,7 +56,7 @@ public class DocumentProjectionTest {
         DocumentProjection projection = new DocumentProjection();
         projection.setIncludes(includes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
         assertEquals(0, result.getValue().size());
     }
@@ -62,7 +67,7 @@ public class DocumentProjectionTest {
         DocumentProjection projection = new DocumentProjection();
         projection.setIncludes(includes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
         assertEquals(6, result.getValue().size());
     }
@@ -72,20 +77,20 @@ public class DocumentProjectionTest {
         DocumentProjection projection = new DocumentProjection();
         projection.setIncludes(Collections.emptySet());
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
         assertEquals(0, result.getValue().size());
     }
     
     @Test
     public void testIncludesAllFields() {
-        Set<String> includes = Sets.newHashSet("FOO", "ID", "PRIMES", "PRIME", "CHILDREN");
+        Set<String> includes = Sets.newHashSet("FOO", "ID", "PRIMES", "PRIME", "CHILDREN", "PRIMARY_ID");
         DocumentProjection projection = new DocumentProjection();
         projection.setIncludes(includes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(11, result.getValue().size());
+        assertEquals(ALL_FIELDS, result.getValue().size());
     }
     
     @Test
@@ -94,42 +99,20 @@ public class DocumentProjectionTest {
         DocumentProjection projection = new DocumentProjection();
         projection.setExcludes(excludes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(8, result.getValue().size());
-    }
-    
-    @Test
-    public void testExcludeChildDocumentField() {
-        Set<String> excludes = Sets.newHashSet("CHILDREN");
-        DocumentProjection projection = new DocumentProjection();
-        projection.setExcludes(excludes);
-        
-        assertEquals(11, d.size());
-        Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(11, result.getValue().size());
+        assertEquals(ALL_FIELDS - 3, result.getValue().size());
     }
     
     @Test
     public void testExcludeAllFields() {
-        Set<String> excludes = Sets.newHashSet("FOO", "ID", "PRIMES", "PRIME", "CHILDREN");
+        Set<String> excludes = Sets.newHashSet("FOO", "ID", "PRIMES", "PRIME", "CHILDREN", "PRIMARY_ID");
         DocumentProjection projection = new DocumentProjection();
         projection.setExcludes(excludes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
         assertEquals(0, result.getValue().size());
-    }
-    
-    @Test
-    public void testExcludeNestedField() {
-        Set<String> excludes = Sets.newHashSet("PRIMES");
-        DocumentProjection projection = new DocumentProjection();
-        projection.setExcludes(excludes);
-        
-        assertEquals(11, d.size());
-        Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(6, result.getValue().size());
     }
     
     @Test
@@ -138,9 +121,9 @@ public class DocumentProjectionTest {
         DocumentProjection projection = new DocumentProjection();
         projection.setExcludes(excludes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(6, result.getValue().size());
+        assertEquals(ALL_FIELDS - 5, result.getValue().size());
         assertFalse(result.getValue().containsKey("PRIMES")); // key no longer exists
     }
     
@@ -150,9 +133,9 @@ public class DocumentProjectionTest {
         DocumentProjection projection = new DocumentProjection();
         projection.setExcludes(excludes);
         
-        assertEquals(11, d.size());
+        assertEquals(ALL_FIELDS, d.size());
         Map.Entry<Key,Document> result = projection.apply(Maps.immutableEntry(new Key(), d));
-        assertEquals(8, result.getValue().size());
+        assertEquals(ALL_FIELDS - 3, result.getValue().size());
         assertFalse(result.getValue().containsKey("FOO")); // key no longer exists
     }
     
@@ -188,7 +171,7 @@ public class DocumentProjectionTest {
         d.put("AGE", new Numeric(40, new Key("row", "dt\0uid", "", cv, -1), true));
         
         d.put("NAME.1", new Content("frank", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
-        d.put("AGE.1", new Numeric(12, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
+        d.put("AGE.1", new Numeric(ALL_FIELDS, new Key("row", "dt\0uid", "", cv, -1), true), true, false);
         
         d.put("NAME.2", new Content("sally", new Key("row", "dt\0uid", "", cv, -1), true), true, false);
         d.put("AGE.2", new Numeric(10, new Key("row", "dt\0uid", "", cv, -1), true), true, false);

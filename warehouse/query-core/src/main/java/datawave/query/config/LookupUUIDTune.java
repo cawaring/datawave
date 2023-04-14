@@ -28,8 +28,6 @@ public class LookupUUIDTune implements Profile {
     protected boolean reduceResponse = false;
     protected boolean enablePreload = false;
     protected boolean speculativeScanning = false;
-    protected int maxFieldHitsBeforeSeek = -1;
-    protected int maxKeysBeforeSeek = -1;
     // lookup uuid profiles can override seeking configs for field index and event keys
     protected int fiFieldSeek = -1;
     protected int fiNextSeek = -1;
@@ -75,8 +73,10 @@ public class LookupUUIDTune implements Profile {
                 rsq.setParseTldUids(true);
                 
                 // pass through seek options
-                rsq.setFiFieldSeek(maxFieldHitsBeforeSeek);
-                rsq.setFiNextSeek(maxKeysBeforeSeek);
+                rsq.setFiFieldSeek(fiFieldSeek);
+                rsq.setFiNextSeek(fiNextSeek);
+                rsq.setEventFieldSeek(eventFieldSeek);
+                rsq.setEventNextSeek(eventNextSeek);
                 
                 if (maxPageSize != -1) {
                     rsq.setMaxPageSize(maxPageSize);
@@ -199,22 +199,6 @@ public class LookupUUIDTune implements Profile {
     
     public boolean getReduceResponse() {
         return reduceResponse;
-    }
-    
-    public void setMaxFieldHitsBeforeSeek(int maxFieldHitsBeforeSeek) {
-        this.maxFieldHitsBeforeSeek = maxFieldHitsBeforeSeek;
-    }
-    
-    public int getMaxFieldHitsBeforeSeek() {
-        return maxFieldHitsBeforeSeek;
-    }
-    
-    public void setMaxKeysBeforeSeek(int maxKeysBeforeSeek) {
-        this.maxKeysBeforeSeek = maxKeysBeforeSeek;
-    }
-    
-    public int getMaxKeysBeforeSeek() {
-        return maxKeysBeforeSeek;
     }
     
     public int getFiFieldSeek() {

@@ -84,7 +84,7 @@ public class QueryMetricsWriter {
     private Map<String,Long> lastPageMetricMap;
     private DecimalFormat df = new DecimalFormat("0.00");
     private Future future = null;
-    private boolean shuttingDown = false;
+    private volatile boolean shuttingDown = false;
     private List<FailureRecord> failedMetrics = new ArrayList<>();
     
     @PostConstruct
@@ -242,7 +242,7 @@ public class QueryMetricsWriter {
     }
     
     private void processQueryMetricsWithRemoteService(List<QueryMetricHolder> metricHolderQueue) {
-        List<BaseQueryMetric> metricQueue = metricHolderQueue.stream().map(h -> h.getQueryMetric()).collect(Collectors.toList());
+        List<BaseQueryMetric> metricQueue = metricHolderQueue.stream().map(QueryMetricHolder::getQueryMetric).collect(Collectors.toList());
         if (!metricQueue.isEmpty()) {
             try {
                 writeMetricsToRemoteService(metricQueue);

@@ -53,6 +53,8 @@ public abstract class IvaratorBuilder extends IndexIteratorBuilder {
             if (!hdfsFileSystem.exists(parentCachePath)) {
                 // being able to make the parent directory is proof enough
                 hdfsFileSystem.mkdirs(parentCachePath);
+            } else if (hdfsFileSystem.getFileStatus(parentCachePath).isFile()) {
+                throw new IOException(parentCachePath.toString() + " exists but is a file.  Expecting directory");
             } else if (parentURI.getScheme().equals("file")) {
                 File parent = new File(parentURI.getPath());
                 if (!parent.canWrite() || !parent.canRead()) {

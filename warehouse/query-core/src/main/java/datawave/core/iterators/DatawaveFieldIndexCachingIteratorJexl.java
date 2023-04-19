@@ -1276,12 +1276,28 @@ public abstract class DatawaveFieldIndexCachingIteratorJexl extends WrappingIter
         this.setControl.setCancelled();
         clearRowBasedHdfsBackedSet();
         if (this.requiresCleanup) {
-            try {
-                log.warn("Deleting " + this.controlDir);
-                this.controlFs.delete(this.controlDir, true);
-                log.warn("Deleted " + this.controlDir);
-            } catch (IOException e) {
-                log.error("Failed to cleanup control directory", e);
+            // for each of the ivarator cache dirs
+            for (IvaratorCacheDir ivaratorCacheDir : ivaratorCacheDirs) {
+                // get the row specific dir
+                Path cacheDir = new Path(ivaratorCacheDir.getPathURI());
+
+                FileSystem fs = ivaratorCacheDir.getFs();
+                if (log.isDebugEnabled()) {
+                    log.debug("Cleaning up " + cacheDir);
+                }
+                try {
+                    if (fs.exists(cacheDir)) {
+                        if (log.isTraceEnabled()) {
+                            log.trace("Deleting " + cacheDir);
+                        }
+                        fs.delete(cacheDir, true);
+                        if (log.isTraceEnabled()) {
+                            log.trace("Deleted " + cacheDir);
+                        }
+                    }
+                } catch (IOException e) {
+                    log.error("Failed to cleanup ivarator cache dir " + cacheDir, e);
+                }
             }
         }
     }

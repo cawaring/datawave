@@ -17,6 +17,7 @@ import datawave.util.TableName;
 import datawave.webservice.edgedictionary.RemoteEdgeDictionary;
 import datawave.webservice.query.QueryImpl;
 import datawave.webservice.query.configuration.GenericQueryConfiguration;
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.BatchWriterConfig;
 import org.apache.accumulo.core.client.Connector;
@@ -63,60 +64,60 @@ public abstract class LenientFieldsTest {
     
     @RunWith(Arquillian.class)
     public static class ShardRange extends LenientFieldsTest {
-        protected static Connector connector = null;
+        protected static AccumuloClient client = null;
         
         @BeforeClass
         public static void setUp() throws Exception {
             QueryTestTableHelper qtth = new QueryTestTableHelper(ShardRange.class.toString(), log);
-            connector = qtth.connector;
-            
-            WiseGuysIngest.writeItAll(connector, WiseGuysIngest.WhatKindaRange.SHARD);
-            ModelAdditions.addLenientModelEntries(connector);
+            client = qtth.client;
+
+            WiseGuysIngest.writeItAll(client, WiseGuysIngest.WhatKindaRange.SHARD);
+            ModelAdditions.addLenientModelEntries(client);
             
             Authorizations auths = new Authorizations("ALL");
-            PrintUtility.printTable(connector, auths, TableName.SHARD);
-            PrintUtility.printTable(connector, auths, TableName.SHARD_INDEX);
-            PrintUtility.printTable(connector, auths, QueryTestTableHelper.MODEL_TABLE_NAME);
+            PrintUtility.printTable(client, auths, TableName.SHARD);
+            PrintUtility.printTable(client, auths, TableName.SHARD_INDEX);
+            PrintUtility.printTable(client, auths, QueryTestTableHelper.MODEL_TABLE_NAME);
         }
         
         @Override
         protected void runTestQuery(List<String> expected, String plan, String querystr, Date startDate, Date endDate, Map<String,String> extraParms)
                         throws Exception {
-            super.runTestQuery(expected, plan, querystr, startDate, endDate, extraParms, connector);
+            super.runTestQuery(expected, plan, querystr, startDate, endDate, extraParms, client);
         }
     }
     
     @RunWith(Arquillian.class)
     public static class DocumentRange extends LenientFieldsTest {
-        protected static Connector connector = null;
+        protected static AccumuloClient client = null;
         
         @BeforeClass
         public static void setUp() throws Exception {
             QueryTestTableHelper qtth = new QueryTestTableHelper(DocumentRange.class.toString(), log);
-            connector = qtth.connector;
+            client = qtth.client;
             
-            WiseGuysIngest.writeItAll(connector, WiseGuysIngest.WhatKindaRange.DOCUMENT);
-            ModelAdditions.addLenientModelEntries(connector);
+            WiseGuysIngest.writeItAll(client, WiseGuysIngest.WhatKindaRange.DOCUMENT);
+            ModelAdditions.addLenientModelEntries(client);
             Authorizations auths = new Authorizations("ALL");
-            PrintUtility.printTable(connector, auths, TableName.SHARD);
-            PrintUtility.printTable(connector, auths, TableName.SHARD_INDEX);
-            PrintUtility.printTable(connector, auths, QueryTestTableHelper.MODEL_TABLE_NAME);
+            PrintUtility.printTable(client, auths, TableName.SHARD);
+            PrintUtility.printTable(client, auths, TableName.SHARD_INDEX);
+            PrintUtility.printTable(client, auths, QueryTestTableHelper.MODEL_TABLE_NAME);
         }
         
         @Override
         protected void runTestQuery(List<String> expected, String plan, String querystr, Date startDate, Date endDate, Map<String,String> extraParms)
                         throws Exception {
-            super.runTestQuery(expected, plan, querystr, startDate, endDate, extraParms, connector);
+            super.runTestQuery(expected, plan, querystr, startDate, endDate, extraParms, client);
         }
     }
     
     private static class ModelAdditions extends WiseGuysIngest {
-        private static void addLenientModelEntries(Connector connector) throws TableNotFoundException, MutationsRejectedException {
+        private static void addLenientModelEntries(AccumuloClient client) throws TableNotFoundException, MutationsRejectedException {
             BatchWriterConfig bwConfig = new BatchWriterConfig().setMaxMemory(1000L).setMaxLatency(1, TimeUnit.SECONDS).setMaxWriteThreads(1);
             Mutation mutation = null;
             BatchWriter bw = null;
             try {
-                bw = connector.createBatchWriter(QueryTestTableHelper.MODEL_TABLE_NAME, bwConfig);
+                bw = client.createBatchWriter(QueryTestTableHelper.MODEL_TABLE_NAME, bwConfig);
                 
                 mutation = new Mutation("NAM");
                 mutation.put("DATAWAVE", "MAGIC" + "\u0000" + "forward", columnVisibility, timeStamp, emptyValue);
@@ -182,7 +183,7 @@ public abstract class LenientFieldsTest {
                     throws Exception;
     
     protected void runTestQuery(List<String> expected, String plan, String querystr, Date startDate, Date endDate, Map<String,String> extraParms,
-                    Connector connector) throws Exception {
+                    AccumuloClient client) throws Exception {
         log.debug("runTestQuery");
         log.trace("Creating QueryImpl");
         QueryImpl settings = new QueryImpl();
@@ -199,7 +200,7 @@ public abstract class LenientFieldsTest {
         logic.setMaxEvaluationPipelines(1);
         logic.setFullTableScanEnabled(true);
         
-        GenericQueryConfiguration config = logic.initialize(connector, settings, authSet);
+        GenericQueryConfiguration config = logic.initialize(client, settings, authSet);
         logic.setupQuery(config);
         JexlNodeAssert.assertThat(JexlASTHelper.parseJexlQuery(config.getQueryString())).isEqualTo(plan);
         

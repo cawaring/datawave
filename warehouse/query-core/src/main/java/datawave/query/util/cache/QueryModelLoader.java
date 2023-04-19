@@ -10,7 +10,7 @@ import datawave.query.model.FieldMapping;
 import datawave.query.model.QueryModel;
 
 import datawave.util.StringUtils;
-import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.AccumuloClient;
 import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
@@ -33,19 +33,19 @@ public class QueryModelLoader extends AccumuloLoader<Entry<String,String>,Entry<
     /**
      * Fetch a query model loader without a known set of fields
      *
-     * @param connector
-     *            a connector
+     * @param client
+     *            a client
      * @param tableName
      *            the table name
      * @param auths
      *            set of auths
      */
-    public QueryModelLoader(Connector connector, String tableName, Set<Authorizations> auths) {
-        this(connector, tableName, auths, null);
+    public QueryModelLoader(AccumuloClient client, String tableName, Set<Authorizations> auths) {
+        this(client, tableName, auths, null);
     }
-    
-    public QueryModelLoader(Connector connector, String tableName, Set<Authorizations> auths, Set<String> allFields) {
-        super(connector, tableName, auths, new ArrayList<>());
+
+    public QueryModelLoader(AccumuloClient client, String tableName, Set<Authorizations> auths, Set<String> allFields) {
+        super(client, tableName, auths, new ArrayList<>());
         
         this.allFields = allFields;
         

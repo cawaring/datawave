@@ -137,7 +137,7 @@ public class IteratorBuildingVisitor extends BaseVisitor {
     protected Map<Entry<String,String>,Entry<Key,Value>> limitedMap = null;
     protected Collection<String> includeReferences = UniversalSet.instance();
     protected Collection<String> excludeReferences = Collections.emptyList();
-    protected Predicate<Key> datatypeFilter = Predicates.<Key> alwaysTrue();
+    protected Predicate<Key> datatypeFilter;
     protected TimeFilter timeFilter;
     
     protected FileSystemCache hdfsFileSystem;
@@ -165,7 +165,7 @@ public class IteratorBuildingVisitor extends BaseVisitor {
     protected Set<String> termFrequencyFields = Collections.emptySet();
     protected boolean allowTermFrequencyLookup = true;
     protected Set<String> indexOnlyFields = Collections.emptySet();
-    protected FieldIndexAggregator fiAggregator = new IdentityAggregator(null);
+    protected FieldIndexAggregator fiAggregator;
     
     protected CompositeMetadata compositeMetadata;
     protected int compositeSeekThreshold = 10;
@@ -446,7 +446,7 @@ public class IteratorBuildingVisitor extends BaseVisitor {
             builder.setFieldsToAggregate(fieldsToAggregate);
             builder.setTimeFilter(timeFilter);
             builder.setAttrFilter(attrFilter);
-            builder.setDatatypeFilter(datatypeFilter);
+            builder.setDatatypeFilter(getDatatypeFilter());
             builder.setEnv(env);
             builder.setTermFrequencyAggregator(getTermFrequencyAggregator(identifier, sourceNode, attrFilter, tfNextSeek));
             builder.setNode(rootNode);
@@ -590,8 +590,8 @@ public class IteratorBuildingVisitor extends BaseVisitor {
         builder.setTypeMetadata(typeMetadata);
         builder.setFieldsToAggregate(fieldsToAggregate);
         builder.setTimeFilter(timeFilter);
-        builder.setDatatypeFilter(datatypeFilter);
-        builder.setKeyTransform(fiAggregator);
+        builder.setDatatypeFilter(getDatatypeFilter());
+        builder.setKeyTransform(getFiAggregator());
         builder.setEnv(env);
         builder.setNode(node);
         node.childrenAccept(this, builder);
@@ -669,8 +669,8 @@ public class IteratorBuildingVisitor extends BaseVisitor {
         builder.setTimeFilter(getTimeFilter(node));
         builder.setTypeMetadata(typeMetadata);
         builder.setFieldsToAggregate(fieldsToAggregate);
-        builder.setDatatypeFilter(datatypeFilter);
-        builder.setKeyTransform(fiAggregator);
+        builder.setDatatypeFilter(getDatatypeFilter());
+        builder.setKeyTransform(getFiAggregator());
         builder.setEnv(env);
         builder.forceDocumentBuild(!limitLookup && this.isQueryFullySatisfied);
         builder.setNode(node);
@@ -922,8 +922,8 @@ public class IteratorBuildingVisitor extends BaseVisitor {
         builder.setTimeFilter(TimeFilter.alwaysTrue());
         builder.setTypeMetadata(typeMetadata);
         builder.setFieldsToAggregate(fieldsToAggregate);
-        builder.setDatatypeFilter(datatypeFilter);
-        builder.setKeyTransform(fiAggregator);
+        builder.setDatatypeFilter(getDatatypeFilter());
+        builder.setKeyTransform(getFiAggregator());
         builder.setEnv(env);
         builder.setNode(rootNode);
         
@@ -957,8 +957,8 @@ public class IteratorBuildingVisitor extends BaseVisitor {
         builder.setTimeFilter(getTimeFilter(node));
         builder.setTypeMetadata(typeMetadata);
         builder.setFieldsToAggregate(fieldsToAggregate);
-        builder.setDatatypeFilter(datatypeFilter);
-        builder.setKeyTransform(fiAggregator);
+        builder.setDatatypeFilter(getDatatypeFilter());
+        builder.setKeyTransform(getFiAggregator());
         builder.setEnv(env);
         
         node.childrenAccept(this, builder);
@@ -1414,8 +1414,8 @@ public class IteratorBuildingVisitor extends BaseVisitor {
         builder.setCompositeMetadata(compositeMetadata);
         builder.setCompositeSeekThreshold(compositeSeekThreshold);
         builder.setFieldsToAggregate(fieldsToAggregate);
-        builder.setDatatypeFilter(datatypeFilter);
-        builder.setKeyTransform(fiAggregator);
+        builder.setDatatypeFilter(getDatatypeFilter());
+        builder.setKeyTransform(getFiAggregator());
         builder.setIvaratorCacheDirs(getIvaratorCacheDirs());
         builder.setHdfsFileCompressionCodec(hdfsFileCompressionCodec);
         builder.setQueryLock(queryLock);
@@ -1458,6 +1458,30 @@ public class IteratorBuildingVisitor extends BaseVisitor {
                 }
             }
         }
+    }
+    
+    /**
+     * Get the DatatypeFilter
+     *
+     * @return a DatatypeFilter
+     */
+    public Predicate<Key> getDatatypeFilter() {
+        if (datatypeFilter == null) {
+            datatypeFilter = Predicates.alwaysTrue();
+        }
+        return datatypeFilter;
+    }
+    
+    /**
+     * Get the FieldIndexAggregator
+     *
+     * @return a FieldIndexAggregator
+     */
+    public FieldIndexAggregator getFiAggregator() {
+        if (fiAggregator == null) {
+            fiAggregator = new IdentityAggregator(null);
+        }
+        return fiAggregator;
     }
     
     public IteratorBuildingVisitor setRange(Range documentRange) {

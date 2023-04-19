@@ -1,7 +1,6 @@
 package datawave.query.jexl.visitors;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import datawave.data.normalizer.IpAddressNormalizer;
 import datawave.data.type.IpAddressType;
@@ -43,6 +42,7 @@ import org.apache.commons.jexl2.parser.ParserTreeConstants;
 import org.apache.log4j.Logger;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -52,12 +52,9 @@ import java.util.stream.Collectors;
 /**
  * When more than one normalizer exists for a field, we want to transform the single term into a conjunction of the term with each normalizer applied to it. If
  * there is no difference between normalized versions of the term, only one term will be retained.
- *
+ * <p>
  * This class will also normalize terms that have only 1 normalizer associated with their fields. For instance, if `TEXT` is associated with the
  * `LcNoDiacriticsType`, then a subtree of the form `TEXT == 'goOfBAlL'` will be transformed into `TEXT == 'goofball'`.
- *
- * 
- *
  */
 public class ExpandMultiNormalizedTerms extends RebuildingVisitor {
     private static final Logger log = ThreadConfigurableLogger.getLogger(ExpandMultiNormalizedTerms.class);
@@ -208,7 +205,7 @@ public class ExpandMultiNormalizedTerms extends RebuildingVisitor {
     }
     
     private JexlNode expandRangeForNormalizers(LiteralRange<?> range, JexlNode node, Object data) {
-        List<BoundedRange> aliasedBounds = Lists.newArrayList();
+        Set<BoundedRange> aliasedBounds = new HashSet<>();
         String field = range.getFieldName();
         
         // Get all of the indexed or normalized dataTypes for the field name
@@ -250,16 +247,16 @@ public class ExpandMultiNormalizedTerms extends RebuildingVisitor {
             
             // Avoid extra parens around the expansion
             if (1 == aliasedBounds.size()) {
-                return aliasedBounds.get(0);
+                return aliasedBounds.iterator().next();
             } else {
-                List<ASTReferenceExpression> var = JexlASTHelper.wrapInParens(aliasedBounds);
+                // ensure we wrap bounded ranges in parens for certain edge cases
+                List<ASTReferenceExpression> var = JexlASTHelper.wrapInParens(new ArrayList(aliasedBounds));
                 return JexlNodes.wrap(JexlNodes.children(new ASTOrNode(ParserTreeConstants.JJTORNODE), var.toArray(new JexlNode[var.size()])));
             }
         }
     }
     
     /**
-     * 
      * @param node
      *            a jexl node
      * @param data
@@ -279,7 +276,7 @@ public class ExpandMultiNormalizedTerms extends RebuildingVisitor {
                             && (config.getLenientFields().contains(fieldName) || (data instanceof QueryPropertyMarker.Instance && ((QueryPropertyMarker.Instance) data)
                                             .isType(LenientExpression.class)));
             
-            // Get all of the indexed or normalized dataTypes for the field name
+            // Get all the indexed or normalized dataTypes for the field name
             Set<Type<?>> dataTypes = Sets.newHashSet(config.getQueryFieldsDatatypes().get(fieldName));
             dataTypes.addAll(config.getNormalizedFieldsDatatypes().get(fieldName));
             
